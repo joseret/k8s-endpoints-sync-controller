@@ -21,7 +21,7 @@ This is a rough outline of what a contributor's workflow looks like:
 Example:
 
 ``` shell
-git remote add upstream https://github.com/vmware/k8s-endpoints-sync-controller.git
+git remote add upstream https://github.com/joseret/k8s-endpoints-sync-controller.git
 git checkout -b my-new-feature master
 git commit -a
 git push origin my-new-feature

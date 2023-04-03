@@ -4,9 +4,9 @@
 package controller
 
 import (
-	c "github.com/vmware/k8s-endpoints-sync-controller/src/config"
-	"github.com/vmware/k8s-endpoints-sync-controller/src/handlers"
-	log "github.com/vmware/k8s-endpoints-sync-controller/src/log"
+	c "github.com/joseret/k8s-endpoints-sync-controller/src/config"
+	"github.com/joseret/k8s-endpoints-sync-controller/src/handlers"
+	log "github.com/joseret/k8s-endpoints-sync-controller/src/log"
 	"k8s.io/apimachinery/pkg/util/wait"
 	informercorev1 "k8s.io/client-go/informers/core/v1"
 	"k8s.io/client-go/kubernetes"

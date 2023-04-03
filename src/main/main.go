@@ -4,16 +4,17 @@
 package main
 
 import (
-	c "github.com/vmware/k8s-endpoints-sync-controller/src/config"
-	cc "github.com/vmware/k8s-endpoints-sync-controller/src/controller"
-	"github.com/vmware/k8s-endpoints-sync-controller/src/handlers"
-	log "github.com/vmware/k8s-endpoints-sync-controller/src/log"
 	"io/ioutil"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
 	"time"
+
+	c "github.com/joseret/k8s-endpoints-sync-controller/src/config"
+	cc "github.com/joseret/k8s-endpoints-sync-controller/src/controller"
+	"github.com/joseret/k8s-endpoints-sync-controller/src/handlers"
+	log "github.com/joseret/k8s-endpoints-sync-controller/src/log"
 )
 
 func main() {

@@ -4,7 +4,7 @@
 package utils
 
 import (
-	c "github.com/vmware/k8s-endpoints-sync-controller/src/config"
+	c "github.com/joseret/k8s-endpoints-sync-controller/src/config"
 )
 
 func ContainsInArray(s []string, e string) bool {
