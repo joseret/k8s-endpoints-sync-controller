@@ -7,7 +7,6 @@ import (
 	c "github.com/vmware/k8s-endpoints-sync-controller/src/config"
 	"github.com/vmware/k8s-endpoints-sync-controller/src/handlers"
 	log "github.com/vmware/k8s-endpoints-sync-controller/src/log"
-	"k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 	informercorev1 "k8s.io/client-go/informers/core/v1"
 	"k8s.io/client-go/kubernetes"
@@ -69,7 +68,7 @@ func watchNamespaces(client *kubernetes.Clientset, eventHandler handlers.Handler
 func watchEndpoints(client *kubernetes.Clientset, eventHandler handlers.Handler, config *c.Config) cache.Store {
 
 	indexers := cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc}
-	informer := informercorev1.NewEndpointsInformer(client, v1.NamespaceAll, config.ResyncPeriod, indexers)
+	informer := informercorev1.NewFilteredEndpointsInformer(client, "test-1", config.ResyncPeriod, indexers, nil)
 
 	informer.AddEventHandler(
 		cache.ResourceEventHandlerFuncs{
@@ -84,7 +83,7 @@ func watchEndpoints(client *kubernetes.Clientset, eventHandler handlers.Handler,
 
 func watchServices(client *kubernetes.Clientset, eventHandler handlers.Handler, config *c.Config) cache.Store {
 	indexers := cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc}
-	informer := informercorev1.NewServiceInformer(client, v1.NamespaceAll, config.ResyncPeriod, indexers)
+	informer := informercorev1.NewFilteredServiceInformer(client, "test-1", config.ResyncPeriod, indexers, nil)
 
 	informer.AddEventHandler(
 		cache.ResourceEventHandlerFuncs{
