@@ -5,9 +5,10 @@ package log
 
 import (
 	"fmt"
+	"time"
+
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"time"
 )
 
 var core zapcore.Core
@@ -18,11 +19,11 @@ func Initialize() error {
 
 	cfg := zap.NewProductionConfig()
 	cfg.OutputPaths = []string{
-		"/var/log/syndicate.log",
+		"stdout",
 		"stderr",
 	}
 	cfg.ErrorOutputPaths = []string{
-		"/var/log/syndicate.log",
+		"stdout",
 		"stderr",
 	}
 	logger, _ = cfg.Build()
@@ -40,7 +41,7 @@ func Infof(msg string, args ...interface{}) {
 		Message:    msg,
 		Level:      zapcore.InfoLevel,
 		Time:       time.Now().UTC(),
-		LoggerName: "syndicate",
+		LoggerName: "info",
 	}
 	core.Write(e, nil)
 }
@@ -53,7 +54,7 @@ func Debugf(msg string, args ...interface{}) {
 		Message:    msg,
 		Level:      zapcore.DebugLevel,
 		Time:       time.Now().UTC(),
-		LoggerName: "syndicate",
+		LoggerName: "debug",
 	}
 	core.Write(e, nil)
 }
@@ -66,7 +67,7 @@ func Errorf(msg string, args ...interface{}) {
 		Message:    msg,
 		Level:      zapcore.ErrorLevel,
 		Time:       time.Now().UTC(),
-		LoggerName: "syndicate",
+		LoggerName: "error",
 	}
 	core.Write(e, nil)
 }

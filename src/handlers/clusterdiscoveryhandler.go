@@ -104,6 +104,7 @@ func (s *ClusterDiscoveryHandler) ObjectCreated(obj interface{}) {
 }
 
 func (s *ClusterDiscoveryHandler) handleEvent(obj interface{}, handler HandlerFunc) {
+	log.Debugf("jr-handleEvent-[%v]", obj)
 	handler.handle(obj)
 }
 
@@ -627,7 +628,9 @@ func (s *ClusterDiscoveryHandler) shouldProcessEvent(obj interface{}) bool {
 		}
 		return true
 	case *v1.Endpoints:
-		if utils.ContainsKeyVal(v.Labels, s.config.ReplicatedLabelVal) || !s.replicatedNamespaces.Load(v.Namespace) || v.Name == c.KUBERNETES {
+		if
+		// utils.ContainsKeyVal(v.Labels, s.config.ReplicatedLabelVal) ||
+		!s.replicatedNamespaces.Load(v.Namespace) || v.Name == c.KUBERNETES {
 			return false
 		}
 		return true
