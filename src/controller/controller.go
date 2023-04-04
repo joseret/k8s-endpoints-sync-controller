@@ -67,6 +67,7 @@ func watchNamespaces(client *kubernetes.Clientset, eventHandler handlers.Handler
 
 func watchEndpoints(client *kubernetes.Clientset, eventHandler handlers.Handler, config *c.Config) cache.Store {
 
+	log.Infof("watchEndpoints-config.ResyncPeriod[%v]", config.ResyncPeriod)
 	indexers := cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc}
 	informer := informercorev1.NewFilteredEndpointsInformer(client, "test-1", config.ResyncPeriod, indexers, nil)
 
@@ -82,6 +83,7 @@ func watchEndpoints(client *kubernetes.Clientset, eventHandler handlers.Handler,
 }
 
 func watchServices(client *kubernetes.Clientset, eventHandler handlers.Handler, config *c.Config) cache.Store {
+	log.Infof("watchServices-config.ResyncPeriod[%v]", config.ResyncPeriod)
 	indexers := cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc}
 	informer := informercorev1.NewFilteredServiceInformer(client, "test-1", config.ResyncPeriod, indexers, nil)
 
