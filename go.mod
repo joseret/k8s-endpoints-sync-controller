@@ -1,9 +1,8 @@
-module main
+module github.com/joseret/k8s-endpoints-sync-controller
 
 go 1.20
 
 require (
-	github.com/joseret/k8s-endpoints-sync-controller v0.0.0-20230403235025-dfef678fbc0f
 	go.uber.org/zap v1.24.0
 	k8s.io/api v0.26.3
 	k8s.io/apimachinery v0.26.3
