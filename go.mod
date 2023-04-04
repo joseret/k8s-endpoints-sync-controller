@@ -3,7 +3,7 @@ module main
 go 1.21
 
 require (
-	github.com/joseret/k8s-endpoints-sync-controller v0.0.0-20230403234334-2d7e19fe88fe
+	github.com/joseret/k8s-endpoints-sync-controller v0.0.0-20230403235025-dfef678fbc0f
 	go.uber.org/zap v1.24.0
 	k8s.io/api v0.26.3
 	k8s.io/apimachinery v0.26.3
@@ -30,7 +30,6 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/vmware/k8s-endpoints-sync-controller v0.0.0-20190620045923-660d881f0d35 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	golang.org/x/net v0.7.0 // indirect

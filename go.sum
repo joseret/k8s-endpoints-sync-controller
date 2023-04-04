@@ -129,8 +129,8 @@ github.com/hashicorp/golang-lru v0.5.1/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ
 github.com/ianlancetaylor/demangle v0.0.0-20181102032728-5e5cf60278f6/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=
 github.com/imdario/mergo v0.3.6 h1:xTNEAn+kxVO7dTZGu0CegyqKZmoWFI0rF8UxjlB2d28=
 github.com/imdario/mergo v0.3.6/go.mod h1:2EnlNZ0deacrJVfApfmtdGgDfMuh/nq6Ok1EcJh5FfA=
-github.com/joseret/k8s-endpoints-sync-controller v0.0.0-20230403234334-2d7e19fe88fe h1:KfoZ8V+7XaovnPhZyg942k1IQ45IzJogG9sOONxDgCk=
-github.com/joseret/k8s-endpoints-sync-controller v0.0.0-20230403234334-2d7e19fe88fe/go.mod h1:zAmYzC38m86aRSB+sINSwUN8dfJ+gL9Q8qN3HUiAHkw=
+github.com/joseret/k8s-endpoints-sync-controller v0.0.0-20230403235025-dfef678fbc0f h1:tOCIk5E+uBK3Hn/Fin++kG+0/O6J+S+zblvrdqZ1Llo=
+github.com/joseret/k8s-endpoints-sync-controller v0.0.0-20230403235025-dfef678fbc0f/go.mod h1:zAmYzC38m86aRSB+sINSwUN8dfJ+gL9Q8qN3HUiAHkw=
 github.com/josharian/intern v1.0.0 h1:vlS4z54oSdjm0bgjRigI+G1HpF+tI+9rE5LLzOg8HmY=
 github.com/josharian/intern v1.0.0/go.mod h1:5DoeVV0s6jJacbCEi61lwdGj/aVlrQvzHFFd8Hwg//Y=
 github.com/json-iterator/go v1.1.12 h1:PV8peI4a0ysnczrg+LtxykD8LfKY9ML6u2jnxaEnrnM=
@@ -174,8 +174,6 @@ github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81P
 github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5cxcmMvtA=
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stretchr/testify v1.8.0 h1:pSgiaMZlXftHpm5L7V1+rVB+AZJydKsMxsQBIJw4PKk=
-github.com/vmware/k8s-endpoints-sync-controller v0.0.0-20190620045923-660d881f0d35 h1:LEac7TQIIhhhhBE1wUM7bSNRee4ptK5FD3HQHIvg1nY=
-github.com/vmware/k8s-endpoints-sync-controller v0.0.0-20190620045923-660d881f0d35/go.mod h1:IH7ZVO/sbhk2x24yoegRT0cYoLO3ApSWApvKNR73GLE=
 github.com/yuin/goldmark v1.1.25/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.1.32/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
