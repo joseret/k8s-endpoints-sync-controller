@@ -192,7 +192,7 @@ func (s *ClusterDiscoveryHandler) handleEnpointCreateOrUpdate(endpoints *v1.Endp
 				var endpointset v1.EndpointSubset
 				for _, address := range v.Addresses {
 					if clusterCIDR != "" {
-						if !strings.HasPrefix(address.IP, clusterCIDR) {
+						if strings.HasPrefix(address.IP, clusterCIDR) {
 							endpointAddress := v1.EndpointAddress{IP: address.IP}
 							if address.Hostname != "" {
 								endpointAddress.Hostname = address.Hostname
