@@ -138,12 +138,19 @@ func (s *ClusterDiscoveryHandler) handleEnpointCreateOrUpdate(endpoints *v1.Endp
 	}
 	endpointsToApply.Labels[c.REPLICATED_LABEL_KEY] = s.config.ReplicatedLabelVal
 	log.Debugf("handleEnpointCreateOrUpdate-updating endpoints - subsets %s namespace %s", endpoints.Name, endpoints.Namespace)
+	ipmap := make(map[string]bool)
 	for _, v := range endpoints.Subsets {
 		var endpointset v1.EndpointSubset
 		for _, address := range v.Addresses {
 			if address.IP != "" {
 				if clusterCIDR == "" {
 					clusterCIDR = address.IP[0:6]
+				}
+				if _, ok := ipmap[address.IP]; !ok {
+					ipmap[address.IP] = true
+
+				} else {
+					continue
 				}
 				endpointAddress := v1.EndpointAddress{IP: address.IP}
 				if address.Hostname != "" {
