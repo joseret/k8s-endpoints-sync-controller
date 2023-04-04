@@ -58,7 +58,7 @@ func loadConfig() (*c.Config, error) {
 	}
 
 	if cidr, eexists := os.LookupEnv("CIDR"); eexists {
-		log.Infof("CIDR of local cluster to exclude %s", e)
+		log.Infof("CIDR of local cluster to exclude %s", eexists)
 		conf.CIDR = cidr
 	}
 
