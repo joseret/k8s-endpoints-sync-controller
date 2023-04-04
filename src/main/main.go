@@ -57,6 +57,11 @@ func loadConfig() (*c.Config, error) {
 		conf.NamespacesToExclude = strings.Split(e, ",")
 	}
 
+	if cidr, eexists := os.LookupEnv("CIDR"); eexists {
+		log.Infof("CIDR of local cluster to exclude %s", e)
+		conf.CIDR = cidr
+	}
+
 	searchDir := "/etc/kubeconfigs"
 
 	files, err := ioutil.ReadDir(searchDir)

@@ -125,7 +125,7 @@ func (s *ClusterDiscoveryHandler) handleEnpointCreateOrUpdate(endpoints *v1.Endp
 	/*b, _ := json.MarshalIndent(endpoints, "", "  ")
 	fmt.Println("In endpoint before update :", string(b))*/
 	var endpointsToApply v1.Endpoints
-	clusterCIDR := ""
+	clusterCIDR := s.config.CIDR
 	syndicate_ep := true
 	if strings.HasSuffix(endpoints.Name, "-syndicate") || strings.HasSuffix(endpoints.SelfLink, "-syndicate") {
 		endpoints.Name = strings.TrimSuffix(endpoints.Name, "-syndicate")

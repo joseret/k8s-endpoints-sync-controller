@@ -17,6 +17,7 @@ type Config struct {
 	WatchEndpoints      bool
 	WatchServices       bool
 	ResyncPeriod        time.Duration
+	CIDR                string
 }
 
 const REPLICATED_LABEL_KEY = "replicated"
