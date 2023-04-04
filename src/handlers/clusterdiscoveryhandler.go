@@ -319,7 +319,7 @@ func (s *ClusterDiscoveryHandler) handleServiceUpdate(service *v1.Service) {
 			}
 			existingService.Labels[c.REPLICATED_LABEL_KEY] = "true"
 		}
-		existingEndpoints, _ := s.kubeclient.CoreV1().Endpoints(service.Namespace).Get(service.Name, meta_v1.GetOptions{})
+		existingEndpoints, _ := s.kubeclient.CoreV1().Endpoints(service.Namespace).Get(nil, service.Name, meta_v1.GetOptions{})
 		if existingEndpoints.Labels == nil {
 			existingEndpoints.Labels = map[string]string{}
 		}
@@ -487,7 +487,7 @@ func (s *ClusterDiscoveryHandler) handleServiceUpdate(service *v1.Service) {
 
 func (s *ClusterDiscoveryHandler) handleEnpointDelete(endpoints *v1.Endpoints) {
 	log.Infof("deleting endpoints %s namespace %s", endpoints.Name, endpoints.Namespace)
-	existingService, err := s.kubeclient.CoreV1().Services(endpoints.Namespace).Get(endpoints.Name, meta_v1.GetOptions{})
+	existingService, err := s.kubeclient.CoreV1().Services(endpoints.Namespace).Get(nil, endpoints.Name, meta_v1.GetOptions{})
 	if err != nil {
 		log.Errorf("Error retrieving service obj, err %s", err)
 		return
@@ -496,7 +496,7 @@ func (s *ClusterDiscoveryHandler) handleEnpointDelete(endpoints *v1.Endpoints) {
 		return
 	}
 
-	if eErr := s.kubeclient.CoreV1().Endpoints(endpoints.Namespace).Delete(nil, endpoints.Name, &meta_v1.DeleteOptions{}); eErr != nil {
+	if eErr := s.kubeclient.CoreV1().Endpoints(endpoints.Namespace).Delete(nil, endpoints.Name, meta_v1.DeleteOptions{}); eErr != nil {
 		log.Errorf("Error deleting endpoint %s", eErr)
 		return
 	}
@@ -507,7 +507,7 @@ func (s *ClusterDiscoveryHandler) handleServiceDelete(service *v1.Service) {
 	if service.Annotations[c.SVC_ANNOTATION_SYNDICATE_KEY] == c.SVC_ANNOTATION_SINGULAR {
 		return
 	}
-	if eErr := s.kubeclient.CoreV1().Services(service.Namespace).Delete(nil, service.Name, &meta_v1.DeleteOptions{}); eErr != nil {
+	if eErr := s.kubeclient.CoreV1().Services(service.Namespace).Delete(nil, service.Name, meta_v1.DeleteOptions{}); eErr != nil {
 		log.Errorf("Error deleting service %v", eErr)
 		return
 	}
@@ -579,7 +579,7 @@ func (s *ClusterDiscoveryHandler) handleNamespaceUpdate(n *v1.Namespace) {
 func (s *ClusterDiscoveryHandler) handleNamespaceDelete(n *v1.Namespace) {
 
 	log.Infof("deleting namespace %s", n.Name)
-	if err := s.kubeclient.CoreV1().Namespaces().Delete(nil, n.Name, &meta_v1.DeleteOptions{}); err != nil {
+	if err := s.kubeclient.CoreV1().Namespaces().Delete(nil, n.Name, meta_v1.DeleteOptions{}); err != nil {
 		log.Errorf("Error deleting namespace %v", err)
 		return
 	}
@@ -598,7 +598,7 @@ func (s *ClusterDiscoveryHandler) checkIfReplicatedNamespace(namespace string, l
 }
 
 func (s *ClusterDiscoveryHandler) getSelectorfromSyndicateSvc(service *v1.Service) map[string]string {
-	existingService, err := s.kubeclient.CoreV1().Services(service.Namespace).Get(service.Name+"-syndicate", meta_v1.GetOptions{})
+	existingService, err := s.kubeclient.CoreV1().Services(service.Namespace).Get(nil, service.Name+"-syndicate", meta_v1.GetOptions{})
 	if err != nil {
 		log.Errorf("Error retrieving service obj, err %v", err)
 		return nil
