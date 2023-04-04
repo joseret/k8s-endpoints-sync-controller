@@ -121,7 +121,7 @@ func (s *ClusterDiscoveryHandler) ObjectUpdated(oldObj, newObj interface{}) {
 }
 
 func (s *ClusterDiscoveryHandler) handleEnpointCreateOrUpdate(endpoints *v1.Endpoints) {
-	log.Debugf("updating endpoints %s namespace %s", endpoints.Name, endpoints.Namespace)
+	log.Debugf("handleEnpointCreateOrUpdate-updating endpoints %s namespace %s", endpoints.Name, endpoints.Namespace)
 	/*b, _ := json.MarshalIndent(endpoints, "", "  ")
 	fmt.Println("In endpoint before update :", string(b))*/
 	var endpointsToApply v1.Endpoints
@@ -137,7 +137,7 @@ func (s *ClusterDiscoveryHandler) handleEnpointCreateOrUpdate(endpoints *v1.Endp
 		endpointsToApply.Labels = map[string]string{}
 	}
 	endpointsToApply.Labels[c.REPLICATED_LABEL_KEY] = s.config.ReplicatedLabelVal
-
+	log.Debugf("handleEnpointCreateOrUpdate-updating endpoints - subsets %s namespace %s", endpoints.Name, endpoints.Namespace)
 	for _, v := range endpoints.Subsets {
 		var endpointset v1.EndpointSubset
 		for _, address := range v.Addresses {
@@ -173,7 +173,7 @@ func (s *ClusterDiscoveryHandler) handleEnpointCreateOrUpdate(endpoints *v1.Endp
 	} else {
 		if !syndicate_ep && unionSvcEndpoint {
 			if !s.changeInEndpoints(existingEndpoints, &endpointsToApply) {
-				log.Infof("No change in endpoints %s namespace %s", existingEndpoints.Name, existingEndpoints.Namespace)
+				log.Infof("handleEnpointCreateOrUpdate-No change in endpoints %s namespace %s", existingEndpoints.Name, existingEndpoints.Namespace)
 				return
 			}
 		} else if syndicate_ep {
@@ -208,6 +208,7 @@ func (s *ClusterDiscoveryHandler) handleEnpointCreateOrUpdate(endpoints *v1.Endp
 		if unionSvcEndpoint {
 			endpointsToApply.Labels[c.REPLICATED_LABEL_KEY] = "false"
 		}
+		log.Infof("handleEnpointCreateOrUpdate-Chaning endpoints %s namespace %s-endpointsToApply[%v]", existingEndpoints.Name, existingEndpoints.Namespace, &endpointsToApply)
 		if _, eErr := s.kubeclient.CoreV1().Endpoints(endpoints.Namespace).Update(ctx, &endpointsToApply, meta_v1.UpdateOptions{}); eErr != nil {
 			log.Errorf("Error updating endpoint %s", eErr)
 			return
