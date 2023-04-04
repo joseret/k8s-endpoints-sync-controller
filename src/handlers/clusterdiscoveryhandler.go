@@ -146,6 +146,9 @@ func (s *ClusterDiscoveryHandler) handleEnpointCreateOrUpdate(endpoints *v1.Endp
 				if clusterCIDR == "" {
 					clusterCIDR = address.IP[0:6]
 				}
+				if strings.HasPrefix(address.IP, clusterCIDR) {
+					continue
+				}
 				if _, ok := ipmap[address.IP]; !ok {
 					ipmap[address.IP] = true
 
