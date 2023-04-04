@@ -177,6 +177,7 @@ func (s *ClusterDiscoveryHandler) handleEnpointCreateOrUpdate(endpoints *v1.Endp
 				return
 			}
 		} else if syndicate_ep {
+			log.Debugf("handleEnpointCreateOrUpdate- merge existing  endpoints %s namespace %s-CIDR=[%s]", existingEndpoints.Name, existingEndpoints.Namespace, clusterCIDR)
 			for _, v := range existingEndpoints.Subsets {
 				var endpointset v1.EndpointSubset
 				for _, address := range v.Addresses {
