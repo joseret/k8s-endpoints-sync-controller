@@ -194,7 +194,11 @@ func (s *ClusterDiscoveryHandler) handleEnpointCreateOrUpdate(endpoints *v1.Endp
 							if address.Hostname != "" {
 								endpointAddress.Hostname = address.Hostname
 							}
-							endpointset.Addresses = append(endpointset.Addresses, endpointAddress)
+							// dedup
+							if _, ok := ipmap[address.IP]; !ok {
+								ipmap[address.IP] = true
+								endpointset.Addresses = append(endpointset.Addresses, endpointAddress)
+							}
 						}
 					} else {
 						endpointAddress := v1.EndpointAddress{IP: address.IP}
