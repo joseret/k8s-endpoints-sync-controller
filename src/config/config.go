@@ -5,11 +5,16 @@ package config
 
 import (
 	"time"
+
+	"k8s.io/client-go/kubernetes"
 )
 
 type Config struct {
 	ClustersToWatch     []string
+	CIDRToWatch         []string
+	K8sClient           map[string]*kubernetes.Clientset
 	ClusterToApply      string
+	CIDRToApply         string
 	NamespaceToWatch    string
 	NamespacesToExclude []string
 	ReplicatedLabelVal  string

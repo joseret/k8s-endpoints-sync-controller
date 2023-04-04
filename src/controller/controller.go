@@ -28,6 +28,8 @@ func StartController(kubeconfigPath string, eventHandler handlers.Handler, confi
 	if config.WatchServices {
 		watchServices(kubeClient, eventHandler, config)
 	}
+	//TODO - better error handling
+	config.K8sClient[kubeconfigPath], _ = getkubeclient(kubeconfigPath)
 	return nil
 }
 

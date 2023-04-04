@@ -11,6 +11,8 @@ import (
 	"syscall"
 	"time"
 
+	"k8s.io/client-go/kubernetes"
+
 	c "github.com/joseret/k8s-endpoints-sync-controller/src/config"
 	cc "github.com/joseret/k8s-endpoints-sync-controller/src/controller"
 	"github.com/joseret/k8s-endpoints-sync-controller/src/handlers"
@@ -61,7 +63,7 @@ func loadConfig() (*c.Config, error) {
 		log.Infof("CIDR of local cluster to exclude %s", eexists)
 		conf.CIDR = cidr
 	}
-
+	conf.K8sClient = make(map[string]*kubernetes.Clientset)
 	searchDir := "/etc/kubeconfigs"
 
 	files, err := ioutil.ReadDir(searchDir)
@@ -72,8 +74,20 @@ func loadConfig() (*c.Config, error) {
 
 	for _, file := range files {
 		if !file.IsDir() && !strings.Contains(file.Name(), "data") {
-			log.Infof("Kubeconfig of cluster to watch %s", file.Name())
-			conf.ClustersToWatch = append(conf.ClustersToWatch, searchDir+"/"+file.Name())
+			if _, eexists := os.LookupEnv("remote-" + file.Name()); eexists {
+				log.Infof("Kubeconfig of cluster to watch %s", file.Name())
+				conf.ClustersToWatch = append(conf.ClustersToWatch, searchDir+"/"+file.Name())
+				if v, eexists := os.LookupEnv("CIDR-" + file.Name()); eexists {
+					conf.ClustersToWatch = append(conf.CIDRToWatch, v)
+				}
+			}
+			if _, eexists := os.LookupEnv("local-" + file.Name()); eexists {
+				log.Infof("Kubeconfig of cluster to apply %s", file.Name())
+				conf.ClustersToWatch = append(conf.ClustersToWatch, searchDir+"/"+file.Name())
+				if v, eexists := os.LookupEnv("CIDR-" + file.Name()); eexists {
+					conf.CIDRToApply = v
+				}
+			}
 		}
 	}
 
