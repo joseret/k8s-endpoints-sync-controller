@@ -77,7 +77,7 @@ func loadConfig() (*c.Config, error) {
 	conf.WatchNamespaces = true
 	conf.WatchEndpoints = true
 	conf.WatchServices = true
-	conf.ResyncPeriod = 5 * time.Minute
+	conf.ResyncPeriod = 30 * time.Second
 
 	return conf, nil
 }

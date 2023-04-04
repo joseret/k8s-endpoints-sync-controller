@@ -4,6 +4,7 @@
 package handlers
 
 import (
+	"context"
 	"strings"
 
 	c "github.com/joseret/k8s-endpoints-sync-controller/src/config"
@@ -28,6 +29,8 @@ type ClusterDiscoveryHandler struct {
 type HandlerFunc struct {
 	handle func(obj interface{})
 }
+
+var ctx context.Context = context.TODO()
 
 func (s *ClusterDiscoveryHandler) Init(conf *c.Config) error {
 	config, configErr := rest.InClusterConfig()
@@ -160,9 +163,9 @@ func (s *ClusterDiscoveryHandler) handleEnpointCreateOrUpdate(endpoints *v1.Endp
 	if singularSvcEndpoint {
 		return
 	}
-	existingEndpoints, _ := s.kubeclient.CoreV1().Endpoints(endpoints.Namespace).Get(nil, endpoints.Name, meta_v1.GetOptions{})
+	existingEndpoints, _ := s.kubeclient.CoreV1().Endpoints(endpoints.Namespace).Get(ctx, endpoints.Name, meta_v1.GetOptions{})
 	if existingEndpoints != nil && existingEndpoints.Name == "" {
-		if _, eErr := s.kubeclient.CoreV1().Endpoints(endpoints.Namespace).Create(nil, &endpointsToApply, meta_v1.CreateOptions{}); eErr != nil {
+		if _, eErr := s.kubeclient.CoreV1().Endpoints(endpoints.Namespace).Create(ctx, &endpointsToApply, meta_v1.CreateOptions{}); eErr != nil {
 			log.Errorf("Error creating endpoint %s", eErr)
 			return
 		}
@@ -204,7 +207,7 @@ func (s *ClusterDiscoveryHandler) handleEnpointCreateOrUpdate(endpoints *v1.Endp
 		if unionSvcEndpoint {
 			endpointsToApply.Labels[c.REPLICATED_LABEL_KEY] = "false"
 		}
-		if _, eErr := s.kubeclient.CoreV1().Endpoints(endpoints.Namespace).Update(nil, &endpointsToApply, meta_v1.UpdateOptions{}); eErr != nil {
+		if _, eErr := s.kubeclient.CoreV1().Endpoints(endpoints.Namespace).Update(ctx, &endpointsToApply, meta_v1.UpdateOptions{}); eErr != nil {
 			log.Errorf("Error updating endpoint %s", eErr)
 			return
 		}
@@ -236,7 +239,7 @@ func (s *ClusterDiscoveryHandler) handleServiceCreate(svc *v1.Service, syndicate
 	if syndicate_svc {
 		svc.Name = svc.Name + "-syndicate"
 	}
-	existingService, _ := s.kubeclient.CoreV1().Services(svc.Namespace).Get(nil, svc.Name, meta_v1.GetOptions{})
+	existingService, _ := s.kubeclient.CoreV1().Services(svc.Namespace).Get(ctx, svc.Name, meta_v1.GetOptions{})
 	if existingService != nil && existingService.Name == "" {
 		if svc.Annotations[c.SVC_ANNOTATION_SYNDICATE_KEY] == c.SVC_ANNOTATION_SINGULAR {
 			return
@@ -258,7 +261,7 @@ func (s *ClusterDiscoveryHandler) handleServiceCreate(svc *v1.Service, syndicate
 		for _, port := range svc.Spec.Ports {
 			service.Spec.Ports = append(service.Spec.Ports, v1.ServicePort{Protocol: port.Protocol, Name: port.Name, Port: port.Port, TargetPort: port.TargetPort})
 		}
-		if _, err := s.kubeclient.CoreV1().Services(svc.Namespace).Create(nil, &service, meta_v1.CreateOptions{}); err != nil {
+		if _, err := s.kubeclient.CoreV1().Services(svc.Namespace).Create(ctx, &service, meta_v1.CreateOptions{}); err != nil {
 			log.Errorf("Error creating service %s", err)
 			return
 		}
@@ -279,7 +282,7 @@ func (s *ClusterDiscoveryHandler) handleServiceCreate(svc *v1.Service, syndicate
 			return
 		}
 		existingService.Labels[c.REPLICATED_LABEL_KEY] = s.config.ReplicatedLabelVal
-		if _, err := s.kubeclient.CoreV1().Services(svc.Namespace).Update(nil, existingService, meta_v1.UpdateOptions{}); err != nil {
+		if _, err := s.kubeclient.CoreV1().Services(svc.Namespace).Update(ctx, existingService, meta_v1.UpdateOptions{}); err != nil {
 			log.Errorf("Error updating service %s", err)
 			return
 		}
@@ -289,7 +292,7 @@ func (s *ClusterDiscoveryHandler) handleServiceCreate(svc *v1.Service, syndicate
 func (s *ClusterDiscoveryHandler) handleServiceUpdate(service *v1.Service) {
 	log.Infof("updating service %s namespace %s", service.Name, service.Namespace)
 
-	existingService, err := s.kubeclient.CoreV1().Services(service.Namespace).Get(nil, service.Name, meta_v1.GetOptions{})
+	existingService, err := s.kubeclient.CoreV1().Services(service.Namespace).Get(ctx, service.Name, meta_v1.GetOptions{})
 	if err != nil {
 		log.Errorf("Error retrieving service obj, err %s", err)
 		return
@@ -319,19 +322,19 @@ func (s *ClusterDiscoveryHandler) handleServiceUpdate(service *v1.Service) {
 			}
 			existingService.Labels[c.REPLICATED_LABEL_KEY] = "true"
 		}
-		existingEndpoints, _ := s.kubeclient.CoreV1().Endpoints(service.Namespace).Get(nil, service.Name, meta_v1.GetOptions{})
+		existingEndpoints, _ := s.kubeclient.CoreV1().Endpoints(service.Namespace).Get(ctx, service.Name, meta_v1.GetOptions{})
 		if existingEndpoints.Labels == nil {
 			existingEndpoints.Labels = map[string]string{}
 		}
 		existingEndpoints.Labels[c.REPLICATED_LABEL_KEY] = "false"
 		existingEndpoints.ResourceVersion = ""
-		if _, err := s.kubeclient.CoreV1().Endpoints(service.Namespace).Update(nil, existingEndpoints, meta_v1.UpdateOptions{}); err != nil {
+		if _, err := s.kubeclient.CoreV1().Endpoints(service.Namespace).Update(ctx, existingEndpoints, meta_v1.UpdateOptions{}); err != nil {
 			log.Errorf("Error updating endpoints %s", err)
 			return
 		}
 		s.handleServiceCreate(service, true)
 		existingService.Spec.Selector = nil
-		if _, err := s.kubeclient.CoreV1().Services(service.Namespace).Update(nil, existingService, meta_v1.UpdateOptions{}); err != nil {
+		if _, err := s.kubeclient.CoreV1().Services(service.Namespace).Update(ctx, existingService, meta_v1.UpdateOptions{}); err != nil {
 			log.Errorf("Error updating service %s", err)
 			return
 		}
@@ -340,7 +343,7 @@ func (s *ClusterDiscoveryHandler) handleServiceUpdate(service *v1.Service) {
 
 	if service.Annotations[c.SVC_ANNOTATION_SYNDICATE_KEY] == c.SVC_ANNOTATION_SOURCE {
 		if existingService.Annotations[c.SVC_ANNOTATION_SYNDICATE_KEY] != c.SVC_ANNOTATION_RECEIVER {
-			existingEndpoints, err := s.kubeclient.CoreV1().Endpoints(service.Namespace).Get(nil, service.Name, meta_v1.GetOptions{})
+			existingEndpoints, err := s.kubeclient.CoreV1().Endpoints(service.Namespace).Get(ctx, service.Name, meta_v1.GetOptions{})
 			if err != nil {
 				log.Errorf("Error retrieving endpoints obj, err %s", err)
 				return
@@ -350,7 +353,7 @@ func (s *ClusterDiscoveryHandler) handleServiceUpdate(service *v1.Service) {
 			}
 			existingEndpoints.Labels[c.REPLICATED_LABEL_KEY] = "false"
 			existingEndpoints.ResourceVersion = ""
-			if _, eErr := s.kubeclient.CoreV1().Endpoints(service.Namespace).Update(nil, existingEndpoints, meta_v1.UpdateOptions{}); eErr != nil {
+			if _, eErr := s.kubeclient.CoreV1().Endpoints(service.Namespace).Update(ctx, existingEndpoints, meta_v1.UpdateOptions{}); eErr != nil {
 				log.Errorf("Error updating endpoint %s", eErr)
 				return
 			}
@@ -362,7 +365,7 @@ func (s *ClusterDiscoveryHandler) handleServiceUpdate(service *v1.Service) {
 				existingService.Annotations = map[string]string{}
 			}
 			existingService.Annotations[c.SVC_ANNOTATION_SYNDICATE_KEY] = c.SVC_ANNOTATION_RECEIVER
-			if _, err := s.kubeclient.CoreV1().Services(service.Namespace).Update(nil, existingService, meta_v1.UpdateOptions{}); err != nil {
+			if _, err := s.kubeclient.CoreV1().Services(service.Namespace).Update(ctx, existingService, meta_v1.UpdateOptions{}); err != nil {
 				log.Errorf("Error updating service %s", err)
 				return
 			}
@@ -370,7 +373,7 @@ func (s *ClusterDiscoveryHandler) handleServiceUpdate(service *v1.Service) {
 			s.handleServiceDelete(service)
 			return
 		} else if existingService.Annotations[c.SVC_ANNOTATION_SYNDICATE_KEY] == c.SVC_ANNOTATION_RECEIVER {
-			existingEndpoints, err := s.kubeclient.CoreV1().Endpoints(service.Namespace).Get(nil, service.Name, meta_v1.GetOptions{})
+			existingEndpoints, err := s.kubeclient.CoreV1().Endpoints(service.Namespace).Get(ctx, service.Name, meta_v1.GetOptions{})
 			if err != nil {
 				log.Errorf("Error retrieving endpoints obj, err %s", err)
 				return
@@ -380,7 +383,7 @@ func (s *ClusterDiscoveryHandler) handleServiceUpdate(service *v1.Service) {
 			}
 			existingEndpoints.Labels[c.REPLICATED_LABEL_KEY] = "true"
 			existingEndpoints.ResourceVersion = ""
-			if _, eErr := s.kubeclient.CoreV1().Endpoints(service.Namespace).Update(nil, existingEndpoints, meta_v1.UpdateOptions{}); eErr != nil {
+			if _, eErr := s.kubeclient.CoreV1().Endpoints(service.Namespace).Update(ctx, existingEndpoints, meta_v1.UpdateOptions{}); eErr != nil {
 				log.Errorf("Error updating endpoint %s", eErr)
 				return
 			}
@@ -390,7 +393,7 @@ func (s *ClusterDiscoveryHandler) handleServiceUpdate(service *v1.Service) {
 			existingService.Labels = service.Labels
 			existingService.Labels[c.REPLICATED_LABEL_KEY] = "true"
 			existingService.Spec.Selector = nil
-			if _, err := s.kubeclient.CoreV1().Services(service.Namespace).Update(nil, existingService, meta_v1.UpdateOptions{}); err != nil {
+			if _, err := s.kubeclient.CoreV1().Services(service.Namespace).Update(ctx, existingService, meta_v1.UpdateOptions{}); err != nil {
 				log.Errorf("Error updating service %s", err)
 				return
 			}
@@ -402,7 +405,7 @@ func (s *ClusterDiscoveryHandler) handleServiceUpdate(service *v1.Service) {
 
 		if existingService.Annotations[c.SVC_ANNOTATION_SYNDICATE_KEY] != c.SVC_ANNOTATION_SOURCE {
 
-			existingEndpoints, err := s.kubeclient.CoreV1().Endpoints(service.Namespace).Get(nil, service.Name, meta_v1.GetOptions{})
+			existingEndpoints, err := s.kubeclient.CoreV1().Endpoints(service.Namespace).Get(ctx, service.Name, meta_v1.GetOptions{})
 			if err != nil {
 				log.Errorf("Error retrieving endpoints obj, err %s", err)
 				return
@@ -412,7 +415,7 @@ func (s *ClusterDiscoveryHandler) handleServiceUpdate(service *v1.Service) {
 			}
 			existingEndpoints.Labels[c.REPLICATED_LABEL_KEY] = "false"
 			existingEndpoints.ResourceVersion = ""
-			if _, eErr := s.kubeclient.CoreV1().Endpoints(service.Namespace).Update(nil, existingEndpoints, meta_v1.UpdateOptions{}); eErr != nil {
+			if _, eErr := s.kubeclient.CoreV1().Endpoints(service.Namespace).Update(ctx, existingEndpoints, meta_v1.UpdateOptions{}); eErr != nil {
 				log.Errorf("Error updating endpoint %s", eErr)
 				return
 			}
@@ -424,7 +427,7 @@ func (s *ClusterDiscoveryHandler) handleServiceUpdate(service *v1.Service) {
 				existingService.Annotations = map[string]string{}
 			}
 			existingService.Annotations[c.SVC_ANNOTATION_SYNDICATE_KEY] = c.SVC_ANNOTATION_SOURCE
-			if _, err := s.kubeclient.CoreV1().Services(service.Namespace).Update(nil, existingService, meta_v1.UpdateOptions{}); err != nil {
+			if _, err := s.kubeclient.CoreV1().Services(service.Namespace).Update(ctx, existingService, meta_v1.UpdateOptions{}); err != nil {
 				log.Errorf("Error updating service %s", err)
 				return
 			}
@@ -444,11 +447,11 @@ func (s *ClusterDiscoveryHandler) handleServiceUpdate(service *v1.Service) {
 			existingService.Labels = map[string]string{}
 		}
 		existingService.Labels[c.REPLICATED_LABEL_KEY] = "false"
-		if _, err := s.kubeclient.CoreV1().Services(service.Namespace).Update(nil, existingService, meta_v1.UpdateOptions{}); err != nil {
+		if _, err := s.kubeclient.CoreV1().Services(service.Namespace).Update(ctx, existingService, meta_v1.UpdateOptions{}); err != nil {
 			log.Errorf("Error updating service %s", err)
 			return
 		}
-		existingEndpoints, err := s.kubeclient.CoreV1().Endpoints(service.Namespace).Get(nil, service.Name, meta_v1.GetOptions{})
+		existingEndpoints, err := s.kubeclient.CoreV1().Endpoints(service.Namespace).Get(ctx, service.Name, meta_v1.GetOptions{})
 		if err != nil {
 			log.Errorf("Error retrieving endpoints obj, err %s", err)
 			return
@@ -458,7 +461,7 @@ func (s *ClusterDiscoveryHandler) handleServiceUpdate(service *v1.Service) {
 		}
 		existingEndpoints.Labels[c.REPLICATED_LABEL_KEY] = "false"
 		existingEndpoints.ResourceVersion = ""
-		if _, eErr := s.kubeclient.CoreV1().Endpoints(service.Namespace).Update(nil, existingEndpoints, meta_v1.UpdateOptions{}); eErr != nil {
+		if _, eErr := s.kubeclient.CoreV1().Endpoints(service.Namespace).Update(ctx, existingEndpoints, meta_v1.UpdateOptions{}); eErr != nil {
 			log.Errorf("Error updating endpoint %s", eErr)
 			return
 		}
@@ -479,7 +482,7 @@ func (s *ClusterDiscoveryHandler) handleServiceUpdate(service *v1.Service) {
 		existingService.Labels = map[string]string{}
 	}
 	existingService.Labels[c.REPLICATED_LABEL_KEY] = s.config.ReplicatedLabelVal
-	if _, err := s.kubeclient.CoreV1().Services(service.Namespace).Update(nil, existingService, meta_v1.UpdateOptions{}); err != nil {
+	if _, err := s.kubeclient.CoreV1().Services(service.Namespace).Update(ctx, existingService, meta_v1.UpdateOptions{}); err != nil {
 		log.Errorf("Error updating service %s", err)
 		return
 	}
@@ -487,7 +490,7 @@ func (s *ClusterDiscoveryHandler) handleServiceUpdate(service *v1.Service) {
 
 func (s *ClusterDiscoveryHandler) handleEnpointDelete(endpoints *v1.Endpoints) {
 	log.Infof("deleting endpoints %s namespace %s", endpoints.Name, endpoints.Namespace)
-	existingService, err := s.kubeclient.CoreV1().Services(endpoints.Namespace).Get(nil, endpoints.Name, meta_v1.GetOptions{})
+	existingService, err := s.kubeclient.CoreV1().Services(endpoints.Namespace).Get(ctx, endpoints.Name, meta_v1.GetOptions{})
 	if err != nil {
 		log.Errorf("Error retrieving service obj, err %s", err)
 		return
@@ -496,7 +499,7 @@ func (s *ClusterDiscoveryHandler) handleEnpointDelete(endpoints *v1.Endpoints) {
 		return
 	}
 
-	if eErr := s.kubeclient.CoreV1().Endpoints(endpoints.Namespace).Delete(nil, endpoints.Name, meta_v1.DeleteOptions{}); eErr != nil {
+	if eErr := s.kubeclient.CoreV1().Endpoints(endpoints.Namespace).Delete(ctx, endpoints.Name, meta_v1.DeleteOptions{}); eErr != nil {
 		log.Errorf("Error deleting endpoint %s", eErr)
 		return
 	}
@@ -507,7 +510,7 @@ func (s *ClusterDiscoveryHandler) handleServiceDelete(service *v1.Service) {
 	if service.Annotations[c.SVC_ANNOTATION_SYNDICATE_KEY] == c.SVC_ANNOTATION_SINGULAR {
 		return
 	}
-	if eErr := s.kubeclient.CoreV1().Services(service.Namespace).Delete(nil, service.Name, meta_v1.DeleteOptions{}); eErr != nil {
+	if eErr := s.kubeclient.CoreV1().Services(service.Namespace).Delete(ctx, service.Name, meta_v1.DeleteOptions{}); eErr != nil {
 		log.Errorf("Error deleting service %v", eErr)
 		return
 	}
@@ -515,7 +518,7 @@ func (s *ClusterDiscoveryHandler) handleServiceDelete(service *v1.Service) {
 
 func (s *ClusterDiscoveryHandler) handleNamespaceCreate(n *v1.Namespace) {
 	log.Infof("creating namespace %s", n.Name)
-	existingNamespace, _ := s.kubeclient.CoreV1().Namespaces().Get(nil, n.Name, meta_v1.GetOptions{})
+	existingNamespace, _ := s.kubeclient.CoreV1().Namespaces().Get(ctx, n.Name, meta_v1.GetOptions{})
 
 	if existingNamespace != nil && existingNamespace.Name == "" {
 		ns := v1.Namespace{}
@@ -525,7 +528,7 @@ func (s *ClusterDiscoveryHandler) handleNamespaceCreate(n *v1.Namespace) {
 			ns.Labels = map[string]string{}
 		}
 		ns.Labels[c.REPLICATED_LABEL_KEY] = s.config.ReplicatedLabelVal
-		if _, err := s.kubeclient.CoreV1().Namespaces().Create(nil, &ns, meta_v1.CreateOptions{}); err != nil {
+		if _, err := s.kubeclient.CoreV1().Namespaces().Create(ctx, &ns, meta_v1.CreateOptions{}); err != nil {
 			log.Errorf("Error creating namespace %v", err)
 			return
 		}
@@ -539,7 +542,7 @@ func (s *ClusterDiscoveryHandler) handleNamespaceCreate(n *v1.Namespace) {
 		} else {
 			existingNamespace.Labels[c.REPLICATED_LABEL_KEY] = s.config.ReplicatedLabelVal
 		}
-		if _, err := s.kubeclient.CoreV1().Namespaces().Update(nil, existingNamespace, meta_v1.UpdateOptions{}); err != nil {
+		if _, err := s.kubeclient.CoreV1().Namespaces().Update(ctx, existingNamespace, meta_v1.UpdateOptions{}); err != nil {
 			log.Errorf("Error updating namespace %v", err)
 			return
 		}
@@ -554,7 +557,7 @@ func (s *ClusterDiscoveryHandler) handleNamespaceUpdate(n *v1.Namespace) {
 		return
 	}
 
-	existingNamespace, _ := s.kubeclient.CoreV1().Namespaces().Get(nil, n.Name, meta_v1.GetOptions{})
+	existingNamespace, _ := s.kubeclient.CoreV1().Namespaces().Get(ctx, n.Name, meta_v1.GetOptions{})
 	if existingNamespace != nil && existingNamespace.Name == "" {
 		s.handleNamespaceCreate(n)
 		return
@@ -569,7 +572,7 @@ func (s *ClusterDiscoveryHandler) handleNamespaceUpdate(n *v1.Namespace) {
 	} else {
 		existingNamespace.Labels[c.REPLICATED_LABEL_KEY] = s.config.ReplicatedLabelVal
 	}
-	if _, err := s.kubeclient.CoreV1().Namespaces().Update(nil, existingNamespace, meta_v1.UpdateOptions{}); err != nil {
+	if _, err := s.kubeclient.CoreV1().Namespaces().Update(ctx, existingNamespace, meta_v1.UpdateOptions{}); err != nil {
 		log.Errorf("Error updating namespace %v", err)
 		return
 	}
@@ -579,7 +582,7 @@ func (s *ClusterDiscoveryHandler) handleNamespaceUpdate(n *v1.Namespace) {
 func (s *ClusterDiscoveryHandler) handleNamespaceDelete(n *v1.Namespace) {
 
 	log.Infof("deleting namespace %s", n.Name)
-	if err := s.kubeclient.CoreV1().Namespaces().Delete(nil, n.Name, meta_v1.DeleteOptions{}); err != nil {
+	if err := s.kubeclient.CoreV1().Namespaces().Delete(ctx, n.Name, meta_v1.DeleteOptions{}); err != nil {
 		log.Errorf("Error deleting namespace %v", err)
 		return
 	}
@@ -598,7 +601,7 @@ func (s *ClusterDiscoveryHandler) checkIfReplicatedNamespace(namespace string, l
 }
 
 func (s *ClusterDiscoveryHandler) getSelectorfromSyndicateSvc(service *v1.Service) map[string]string {
-	existingService, err := s.kubeclient.CoreV1().Services(service.Namespace).Get(nil, service.Name+"-syndicate", meta_v1.GetOptions{})
+	existingService, err := s.kubeclient.CoreV1().Services(service.Namespace).Get(ctx, service.Name+"-syndicate", meta_v1.GetOptions{})
 	if err != nil {
 		log.Errorf("Error retrieving service obj, err %v", err)
 		return nil
@@ -607,7 +610,7 @@ func (s *ClusterDiscoveryHandler) getSelectorfromSyndicateSvc(service *v1.Servic
 }
 
 func (s *ClusterDiscoveryHandler) checkIfUnionorSingularSvcEndpoint(endpoints *v1.Endpoints) (bool, bool) {
-	existingService, err := s.kubeclient.CoreV1().Services(endpoints.Namespace).Get(nil, endpoints.Name, meta_v1.GetOptions{})
+	existingService, err := s.kubeclient.CoreV1().Services(endpoints.Namespace).Get(ctx, endpoints.Name, meta_v1.GetOptions{})
 	if err != nil {
 		log.Errorf("Error retrieving service obj, err %v", err)
 		return false, false
