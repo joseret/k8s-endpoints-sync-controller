@@ -80,7 +80,7 @@ func loadConfig() (*c.Config, error) {
 				log.Infof("Kubeconfig of cluster to watch %s", file.Name())
 				conf.ClustersToWatch = append(conf.ClustersToWatch, searchDir+"/"+file.Name())
 				if v, eexists := os.LookupEnv("CIDR_" + file.Name()); eexists {
-					conf.ClustersToWatch = append(conf.CIDRToWatch, v)
+					conf.CIDRToWatch = append(conf.CIDRToWatch, v)
 				}
 			} else {
 				log.Errorf("Kubeconfig of cluster to watch %s-%s", "remote-"+file.Name(), eexists)
