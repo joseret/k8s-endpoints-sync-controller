@@ -137,7 +137,7 @@ func (s *ClusterDiscoveryHandler) handleEnpointCreateOrUpdate(endpoints *v1.Endp
 		endpointsToApply.Labels = map[string]string{}
 	}
 	endpointsToApply.Labels[c.REPLICATED_LABEL_KEY] = s.config.ReplicatedLabelVal
-	log.Debugf("handleEnpointCreateOrUpdate-updating endpoints - subsets %s namespace %s", endpoints.Name, endpoints.Namespace)
+	log.Debugf("handleEnpointCreateOrUpdate-updating endpoints - subsets %s namespace %s - [%s]", endpoints.Name, endpoints.Namespace, endpoints.Subsets)
 	ipmap := make(map[string]bool)
 	for _, v := range endpoints.Subsets {
 		var endpointset v1.EndpointSubset
@@ -174,6 +174,8 @@ func (s *ClusterDiscoveryHandler) handleEnpointCreateOrUpdate(endpoints *v1.Endp
 	if singularSvcEndpoint {
 		return
 	}
+	log.Debugf("handleEnpointCreateOrUpdate-updating endpoints - TOAPPLY - subsets %s namespace %s - [%s]", endpoints.Name, endpoints.Namespace, endpointsToApply.Subsets)
+
 	existingEndpoints, _ := s.kubeclient.CoreV1().Endpoints(endpoints.Namespace).Get(ctx, endpoints.Name, meta_v1.GetOptions{})
 	if existingEndpoints != nil && existingEndpoints.Name == "" {
 		if _, eErr := s.kubeclient.CoreV1().Endpoints(endpoints.Namespace).Create(ctx, &endpointsToApply, meta_v1.CreateOptions{}); eErr != nil {
