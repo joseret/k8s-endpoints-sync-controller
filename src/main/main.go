@@ -87,7 +87,8 @@ func loadConfig() (*c.Config, error) {
 			}
 			if _, eexists := os.LookupEnv("LOCAL_" + file.Name()); eexists {
 				log.Infof("Kubeconfig of cluster to apply %s", file.Name())
-				conf.ClustersToWatch = append(conf.ClustersToWatch, searchDir+"/"+file.Name())
+				// conf.ClustersToWatch = append(conf.ClustersToWatch, searchDir+"/"+file.Name())
+				conf.ClusterToApply = searchDir + "/" + file.Name()
 				if v, eexists := os.LookupEnv("CIDR_" + file.Name()); eexists {
 					conf.CIDRToApply = v
 				}
