@@ -35,6 +35,7 @@ func main() {
 	}
 	for _, cluster := range config.ClustersToWatch {
 
+		log.Infof("main: Starting clusterdiscovery for cluster-[%s]", cluster)
 		go cc.StartController(cluster, handler, config)
 
 	}
