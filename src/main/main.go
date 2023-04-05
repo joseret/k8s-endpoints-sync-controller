@@ -76,7 +76,7 @@ func loadConfig() (*c.Config, error) {
 	for _, file := range files {
 		if !file.IsDir() && !strings.Contains(file.Name(), "data") {
 			log.Infof("Kubeconfig file - watch %s", file.Name())
-			if _, eexists := os.LookupEnv("REMOTE_" + "-" + file.Name()); eexists {
+			if _, eexists := os.LookupEnv("REMOTE" + "_" + file.Name()); eexists {
 				log.Infof("Kubeconfig of cluster to watch %s", file.Name())
 				conf.ClustersToWatch = append(conf.ClustersToWatch, searchDir+"/"+file.Name())
 				if v, eexists := os.LookupEnv("CIDR_" + file.Name()); eexists {
@@ -101,7 +101,7 @@ func loadConfig() (*c.Config, error) {
 	conf.WatchNamespaces = true
 	conf.WatchEndpoints = true
 	conf.WatchServices = true
-	conf.ResyncPeriod = 180 * time.Second
+	conf.ResyncPeriod = 120 * time.Second
 
 	return conf, nil
 }
